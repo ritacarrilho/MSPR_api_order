@@ -4,6 +4,7 @@
 - BILLARD Mélissa
 - BRACCIALES-COMBAS Lola
 - CARRILHO LAMEIRA Rita
+- DIAGNE Sokhna
 
 ## Technologie 
 - Api en [FastApi](https://fastapi.tiangolo.com/)
