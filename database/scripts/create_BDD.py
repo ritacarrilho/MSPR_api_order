@@ -5,9 +5,9 @@ import os
 
 # Informations de connexion MySQL
 config = {
-    'user': 'root',      
-    'password': '',      
-    'host': 'localhost', 
+    'user': 'root',
+    'password': '',
+    'host': 'localhost',
 }
 
 # Nom de la base de données
@@ -90,17 +90,29 @@ try:
                 order['createdAt']
             ))
 
-            # Insertion des produits associés à chaque ordre dans la table Order_Products
-            for product in order['products']:
-                insert_order_product = """
-                    INSERT INTO order_products (productId, quantity, id_order)
-                    VALUES (%s, %s, %s)
-                """
-                cursor.execute(insert_order_product, (
-                    product['id'],  # id du produit
-                    product['stock'],  # prb quantité compter nombre de fois le produit sinon on à pas l'info haha FUCK !
-                    order['id']  
-                ))
+            # Si la commande a des produits, traiter l'insertion dans Order_Products
+            if order['products']:
+                product_quantities = {}
+
+                # Compter le nombre de fois chaque produit apparaît dans la commande
+                for product in order['products']:
+                    product_id = product['id']
+                    if product_id in product_quantities:
+                        product_quantities[product_id] += 1
+                    else:
+                        product_quantities[product_id] = 1
+
+                # Insertion des produits associés à chaque ordre dans la table Order_Products
+                for product_id, total_quantity in product_quantities.items():
+                    insert_order_product = """
+                        INSERT INTO order_products (productId, quantity, id_order)
+                        VALUES (%s, %s, %s)
+                    """
+                    cursor.execute(insert_order_product, (
+                        product_id,
+                        total_quantity,
+                        order['id']
+                    ))
 
         # Valider les changements
         cnx.commit()
