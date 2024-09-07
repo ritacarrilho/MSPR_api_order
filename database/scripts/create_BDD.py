@@ -54,7 +54,7 @@ try:
         """,
         'Order_Products': """
             CREATE TABLE order_products (
-                id_order_products INT,
+                id_order_products INT AUTO_INCREMENT,
                 productId INT NOT NULL,
                 quantity INT NOT NULL,
                 id_order INT NOT NULL,
@@ -93,14 +93,13 @@ try:
             # Insertion des produits associés à chaque ordre dans la table Order_Products
             for product in order['products']:
                 insert_order_product = """
-                    INSERT INTO order_products (id_order_products, productId, quantity, id_order)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO order_products (productId, quantity, id_order)
+                    VALUES (%s, %s, %s)
                 """
                 cursor.execute(insert_order_product, (
-                    product['id'],  # Utilisation de l'id du produit comme id_order_products (modifiable selon besoin)
-                    product['id'],  # productId_ est l'id du produit
-                    product['stock'],  # Utilise le champ "stock" comme quantité
-                    order['id']  # Associer le produit à l'ordre
+                    product['id'],  # id du produit
+                    product['stock'],  # prb quantité compter nombre de fois le produit sinon on à pas l'info haha FUCK !
+                    order['id']  
                 ))
 
         # Valider les changements
