@@ -2,17 +2,17 @@ version: "3.8"
 
 services:
   kawa-orders-db:
-    image: postgres:latest
+    image: mysql:latest
     environment:
-      POSTGRES_USER: orders
-      POSTGRES_PASSWORD: kawaorders
-      POSTGRES_DB: kawaordersdb
+      MYSQL_USER: orders
+      MYSQL_PASSWORD: kawaorders
+      MYSQL_DATABASE: kawaordersdb
     ports:
-      - "3251:5431"
+      - "3253:3307"
     expose:
-      - "5431" 
+      - "3307" 
     volumes:
-      - orders-data:/var/lib/postgresql/data
+      - orders-data:/var/lib/mysql  
     networks:
       - kawa-orders-network
 
@@ -25,7 +25,7 @@ services:
     depends_on:
       - kawa-orders-db
     environment:
-      - DATABASE_URL=postgresql://orders:kawaorders@kawa-orders-db/kawaordersdb
+      - DATABASE_URL=mysql://orders:kawaorders@kawa-orders-db:3307/kawaordersdb
     networks:
       - kawa-orders-network
 
