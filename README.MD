@@ -32,6 +32,20 @@ https://615f5fb4f7254d0017068109.mockapi.io/api/v1/orders
 
 ### Détails tables
 
+#### Table ``orders``
+
+id_order (INT, clé primaire) : Identifiant unique pour chaque commande. 
+
+customerId (INT) : Identifiant du client qui a passé la commande. 
+
+*Ce champ fait référence à l'ID du client dans le microservice de gestion des clients. Il permet d'associer chaque commande à un client spécifique.*
+
+createdAt (TIMESTAMP) : Date et heure de création de la commande. 
+
+*Ce champ enregistre le moment où la commande a été passée, ce qui est utile pour le suivi et l'historique des commandes.*
+
+
+
 
 
 ## Endpoints de l'API
