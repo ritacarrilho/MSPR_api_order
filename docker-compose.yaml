@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  kawa-orders-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: kawaorders
+      POSTGRES_DB: kawaordersdb
+    ports:
+      - "3251:5431"
+    expose:
+      - "5431" 
+    volumes:
+      - orders-data:/var/lib/postgresql/data
+    networks:
+      - kawa-orders-network
+
+  kawa-orders-app:
+    container_name: kawa_orders
+    build:
+      context: .
+    ports:
+      - "8081:81"
+    depends_on:
+      - kawa-orders-db
+    environment:
+      - DATABASE_URL=postgresql://orders:kawaorders@kawa-orders-db/kawaordersdb
+    networks:
+      - kawa-orders-network
+
+volumes:
+  orders-data:
+
+networks:
+  kawa-orders-network:
