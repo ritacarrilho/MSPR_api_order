@@ -9,7 +9,7 @@
 - Api en [FastApi](https://fastapi.tiangolo.com/)
 
 ## Base de données
-(MySQL)[https://www.mysql.com/fr/]
+[MySQL](https://www.mysql.com/fr/)
 
 **Nom BDD** : ``order_db``
 
