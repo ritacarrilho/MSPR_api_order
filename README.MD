@@ -42,11 +42,21 @@ customerId (INT) : Identifiant du client qui a passé la commande.
 
 createdAt (TIMESTAMP) : Date et heure de création de la commande. 
 
-*Ce champ enregistre le moment où la commande a été passée, ce qui est utile pour le suivi et l'historique des commandes.*
+#### Table ``order_products``
 
+id_order_products (INT, clé primaire) : Identifiant unique de l'entrée de produit dans la commande.
 
+orderId (INT) : Identifiant de la commande à laquelle ce produit est associé. 
 
+*Ce champ fait référence à l'ID de la commande dans la table orders, permettant de lier chaque produit à sa commande correspondante.*
 
+productId (INT) : Identifiant du produit commandé. 
+
+*Ce champ fait référence à l'ID du produit dans le microservice de gestion des produits. Il permet d'associer chaque produit à sa description et ses détails dans le microservice approprié.*
+
+quantity (INT) : Quantité de ce produit dans la commande. 
+
+*Ce champ indique combien d'unités du produit ont été commandées, essentiel pour la gestion des stocks et le traitement des commandes.*
 
 ## Endpoints de l'API
 
