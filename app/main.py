@@ -26,3 +26,11 @@ def get_order_products(db: Session = Depends(get_db)):
 @app.get("/order-products/{id}", response_model=schemas.OrderProduct, tags=["order-products"])
 def get_order_product(id: int, db: Session = Depends(get_db)):
     return controllers.get_order_product_by_id(db, id)
+
+@app.post("/orders/", response_model=schemas.Order, tags=["orders"])
+def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    return controllers.create_order(db, order)
+
+@app.post("/order-products/", response_model=schemas.OrderProduct, tags=["order-products"])
+def create_order_product(order_product: schemas.OrderProductCreate, db: Session = Depends(get_db)):
+    return controllers.create_order_product(db, order_product)

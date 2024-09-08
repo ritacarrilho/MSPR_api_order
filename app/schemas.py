@@ -28,3 +28,12 @@ class OrderProduct(OrderProductBase):
 
     class Config:
         orm_mode = True
+        
+class OrderCreate(BaseModel):
+    customerId: int
+    createdAt: datetime
+
+class OrderProductCreate(BaseModel):
+    productId: int
+    quantity: int
+    id_order: int
