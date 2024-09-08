@@ -75,6 +75,16 @@ quantity (INT) : Quantité de ce produit dans la commande.
 
 
 ## Commandes utiles
+
+### Lancer l'api en local
+```python
+# Dans le fichier app
+fastapi dev main.py
+# ou
+# À la racine
+ uvicorn app.main:app --reload
+```
+
 ### Effacer fichiers DS_Store
 ```java
 find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch
