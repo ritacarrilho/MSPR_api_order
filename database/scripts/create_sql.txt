@@ -1,0 +1,20 @@
+DROP DATABASE IF EXISTS order_db;
+CREATE DATABASE order_db;
+
+USE order_db;
+
+CREATE TABLE orders(
+   id_order INT,
+   customerId INT NOT NULL,
+   createdAt DATETIME NOT NULL,
+   PRIMARY KEY(id_order)
+);
+
+CREATE TABLE order_products(
+   id_order_products INT AUTO_INCREMENT,
+   productId INT NOT NULL,
+   quantity INT NOT NULL,
+   id_order INT NOT NULL,
+   PRIMARY KEY(id_order_products),
+   FOREIGN KEY(id_order) REFERENCES orders(id_order)
+);
