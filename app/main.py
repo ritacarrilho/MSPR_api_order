@@ -42,3 +42,13 @@ def update_order(id: int, order: schemas.OrderUpdate, db: Session = Depends(get_
 @app.patch("/order-products/{id}", response_model=schemas.OrderProduct, tags=["order-products"])
 def update_order_product(id: int, order_product: schemas.OrderProductUpdate, db: Session = Depends(get_db)):
     return controllers.update_order_product(db, id, order_product)
+
+@app.delete("/orders/{id}", tags=["orders"])
+def delete_order(id: int, db: Session = Depends(get_db)):
+    controllers.delete_order(db, id)
+    return {"detail": "Order deleted"}
+
+@app.delete("/order-products/{id}", tags=["order-products"])
+def delete_order_product(id: int, db: Session = Depends(get_db)):
+    controllers.delete_order_product(db, id)
+    return {"detail": "OrderProduct deleted"}

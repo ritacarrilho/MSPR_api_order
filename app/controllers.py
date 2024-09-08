@@ -64,3 +64,19 @@ def update_order_product(db: Session, order_product_id: int, order_product_data:
     db.refresh(db_order_product)
 
     return db_order_product
+
+def delete_order(db: Session, order_id: int):
+    db_order = db.query(Order).filter(Order.id_order == order_id).first()
+    if db_order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    db.delete(db_order)
+    db.commit()
+
+def delete_order_product(db: Session, order_product_id: int):
+    db_order_product = db.query(OrderProduct).filter(OrderProduct.id_order_products == order_product_id).first()
+    if db_order_product is None:
+        raise HTTPException(status_code=404, detail="OrderProduct not found")
+
+    db.delete(db_order_product)
+    db.commit()
