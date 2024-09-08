@@ -37,3 +37,12 @@ class OrderProductCreate(BaseModel):
     productId: int
     quantity: int
     id_order: int
+    
+class OrderUpdate(BaseModel):
+    customerId: Optional[int] = None
+    createdAt: Optional[datetime] = None
+
+class OrderProductUpdate(BaseModel):
+    productId: Optional[int] = None
+    quantity: Optional[int] = None
+    id_order: Optional[int] = None

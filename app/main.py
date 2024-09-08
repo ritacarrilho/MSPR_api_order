@@ -34,3 +34,11 @@ def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
 @app.post("/order-products/", response_model=schemas.OrderProduct, tags=["order-products"])
 def create_order_product(order_product: schemas.OrderProductCreate, db: Session = Depends(get_db)):
     return controllers.create_order_product(db, order_product)
+
+@app.patch("/orders/{id}", response_model=schemas.Order, tags=["orders"])
+def update_order(id: int, order: schemas.OrderUpdate, db: Session = Depends(get_db)):
+    return controllers.update_order(db, id, order)
+
+@app.patch("/order-products/{id}", response_model=schemas.OrderProduct, tags=["order-products"])
+def update_order_product(id: int, order_product: schemas.OrderProductUpdate, db: Session = Depends(get_db)):
+    return controllers.update_order_product(db, id, order_product)
