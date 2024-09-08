@@ -64,6 +64,7 @@ quantity (INT) : Quantité de ce produit dans la commande.
 *Ce champ indique combien d'unités du produit ont été commandées, essentiel pour la gestion des stocks et le traitement des commandes.*
 
 ## Endpoints de l'API
+![](/assets/api-endpoint.png)
 
 
 ## Docker
