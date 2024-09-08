@@ -6,14 +6,15 @@ services:
     environment:
       MYSQL_USER: orders
       MYSQL_PASSWORD: kawaorders
-      MYSQL_DATABASE: kawaordersdb
+      MYSQL_DATABASE: order_db
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
-      - "3253:3307"
+      - "3307:3306"
     expose:
-      - "3307" 
+      - "3306" 
     volumes:
       - orders-data:/var/lib/mysql  
+      - ./database/scripts:/docker-entrypoint-initdb.d
     networks:
       - kawa-orders-network
 
@@ -26,7 +27,7 @@ services:
     depends_on:
       - kawa-orders-db
     environment:
-      - DATABASE_URL=mysql://orders:kawaorders@kawa-orders-db:3307/kawaordersdb
+      - DATABASE_URL=mysql+mysqlconnector://orders:kawaorders@kawa-orders-db:3306/order_db
     networks:
       - kawa-orders-network
 
