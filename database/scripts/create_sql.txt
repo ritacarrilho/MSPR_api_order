@@ -4,7 +4,7 @@ CREATE DATABASE order_db;
 USE order_db;
 
 CREATE TABLE orders(
-   id_order INT,
+   id_order INT AUTO_INCREMENT,
    customerId INT NOT NULL,
    createdAt DATETIME NOT NULL,
    PRIMARY KEY(id_order)

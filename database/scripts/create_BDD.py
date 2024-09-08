@@ -47,7 +47,7 @@ try:
     create_tables_queries = {
         'Orders': """
             CREATE TABLE orders (
-                id_order INT,
+                id_order INT AUTO_INCREMENT,
                 customerId INT NOT NULL,
                 createdAt DATETIME NOT NULL,
                 PRIMARY KEY (id_order)
