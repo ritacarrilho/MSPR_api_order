@@ -1,13 +1,12 @@
-"""
-Module with all the API endpoints for orders management.
-It includes the operations of creation, lecture, update and delete of orders
-"""
-
 from typing import List
 from fastapi import FastAPI, HTTPException, Depends
 
-
-app = FastAPI()
+app = FastAPI(
+    title="Paye ton kawa",
+    description="Le café c'est la vie",
+    summary="API Produits",
+    version="0.0.2",
+)
 
 @app.get("/", response_model=dict, tags=["Health Check"])
 def api_status():
@@ -18,8 +17,6 @@ def api_status():
         dict: dict with the API status.
     """
     return {"status": "running"}
-
-
 
 @app.get("/orders/", tags=["Orders"])
 def get_orders():
