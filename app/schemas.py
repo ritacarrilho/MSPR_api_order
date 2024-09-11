@@ -5,6 +5,9 @@ from datetime import datetime
 class OrderBase(BaseModel):
     customerId: int
     createdAt: datetime
+    updated_at: datetime
+    status: int
+
 
 class OrderCreate(OrderBase):
     pass
@@ -32,6 +35,8 @@ class OrderProduct(OrderProductBase):
 class OrderCreate(BaseModel):
     customerId: int
     createdAt: datetime
+    updated_at: datetime
+    status: int
 
 class OrderProductCreate(BaseModel):
     productId: int
@@ -41,6 +46,8 @@ class OrderProductCreate(BaseModel):
 class OrderUpdate(BaseModel):
     customerId: Optional[int] = None
     createdAt: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    status: Optional[int] = None
 
 class OrderProductUpdate(BaseModel):
     productId: Optional[int] = None

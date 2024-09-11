@@ -50,6 +50,8 @@ try:
                 id_order INT AUTO_INCREMENT,
                 customerId INT NOT NULL,
                 createdAt DATETIME NOT NULL,
+                updated_at DATETIME,
+                status INT NOT NULL DEFAULT 0,
                 PRIMARY KEY (id_order)
             )
         """,

@@ -8,6 +8,8 @@ class Order(Base):
     id_order = Column(Integer, primary_key=True, index=True)
     customerId = Column(Integer, nullable=False)
     createdAt = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    status = Column(Integer, nullable=False)
 
     # Relation pour accéder aux produits de la commande
     order_products = relationship("OrderProduct", back_populates="order")
