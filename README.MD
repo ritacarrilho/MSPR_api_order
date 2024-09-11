@@ -30,10 +30,10 @@ https://615f5fb4f7254d0017068109.mockapi.io/api/v1/orders
 ![](/assets/mock.png)
 
 ### Modèle Conceptuel de Données (MCD)
-![](/assets/mcd.png)
+![](/assets/mcd-2.png)
 
 #### Modèle Logique de Données (MLD)
-![](/assets/mld.png)
+![](/assets/mld-2.png)
 
 ### Détails tables
 
