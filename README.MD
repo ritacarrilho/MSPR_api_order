@@ -101,5 +101,14 @@ Exécuter les tests :
 python -m unittest tests/test_api.py
 ```
 ### Tests unitaires
+
+- `test_create_order` vérifie la création d'une commande.
+
+- `test_get_orders` teste la récupération des commandes.
+
+- `test_update_order` teste la mise à jour d'une commande.
+
+- `test_delete_order` teste la suppression d'une commande.
+
 ### Tests d'itnégration
 
