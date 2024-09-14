@@ -40,16 +40,16 @@ class TestAPI(unittest.TestCase):
 
     def test_create_order(self):
         order_data = {
-            "customerId": 1,
+            "customerId": 1,  # Mise à jour du nom du champ
             "createdAt": get_current_time(),
             "updated_at": get_current_time(),
-            "status": 0
+            "status": "0"  # Mise à jour du type de champ
         }
         response = client.post("/orders/", json=order_data)
         print("Create Order Response:", response.json())  # Debug
         self.assertEqual(response.status_code, 200)
         self.assertIn("id_order", response.json())  # Vérifie que l'ID est présent
-        self.assertEqual(response.json()["status"], 0)
+        self.assertEqual(response.json()["status"], "0")
 
     def test_get_orders(self):
         response = client.get("/orders/")
@@ -59,10 +59,10 @@ class TestAPI(unittest.TestCase):
     def test_update_order(self):
         # Crée une commande pour tester la mise à jour
         order_data = {
-            "customerId": 1,
+            "customerId": 1,  # Mise à jour du nom du champ
             "createdAt": get_current_time(),
             "updated_at": get_current_time(),
-            "status": 0
+            "status": "0"  # Mise à jour du type de champ
         }
         create_response = client.post("/orders/", json=order_data)
         created_order = create_response.json()
@@ -71,19 +71,19 @@ class TestAPI(unittest.TestCase):
 
         # Met à jour la commande
         update_data = {
-            "status": 1
+            "status": "1"  # Mise à jour du type de champ
         }
         response = client.patch(f"/orders/{order_id}", json=update_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], 1)
+        self.assertEqual(response.json()["status"], "1")
 
     def test_delete_order(self):
         # Crée une commande pour tester la suppression
         order_data = {
-            "customerId": 1,
+            "customerId": 1,  # Mise à jour du nom du champ
             "createdAt": get_current_time(),
             "updated_at": get_current_time(),
-            "status": 0
+            "status": "0"  # Mise à jour du type de champ
         }
         create_response = client.post("/orders/", json=order_data)
         created_order = create_response.json()
