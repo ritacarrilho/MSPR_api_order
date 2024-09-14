@@ -30,9 +30,11 @@ services:
       - DATABASE_URL=mysql+mysqlconnector://orders:kawaorders@kawa-orders-db:3306/order_db
     networks:
       - kawa-orders-network
+      - kawa-shared-network
 
 volumes:
   orders-data:
 
 networks:
   kawa-orders-network:
+  kawa-shared-network:
