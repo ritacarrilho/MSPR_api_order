@@ -117,5 +117,9 @@ python -m unittest tests/test_api.py
 | `test_delete_from_orders` | Teste la suppression d'une commande dans la table 'orders'. | Intégration |
 | `test_read_from_order_products` | Teste la lecture des données insérées dans la table 'order_products'. | Intégration |
 
+#### Rapport de test en format XML
+```python
+pytest --junitxml=report.xml
+```
 
 
