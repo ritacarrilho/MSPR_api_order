@@ -93,7 +93,12 @@ find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch
 ## Tests
 Librairie utilisé : [unittest](https://docs.python.org/3/library/unittest.html)
 ```python
-pip install fastapi requests sqlalchemy unittest
+pip install fastapi requests sqlalchemy
+```
+
+Exécuter les tests : 
+```python
+python -m unittest tests/test_api.py
 ```
 ### Tests unitaires
 ### Tests d'itnégration
