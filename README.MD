@@ -121,5 +121,8 @@ python -m unittest tests/test_api.py
 ```python
 pytest --junitxml=report.xml
 ```
+#### Rapport de test en format HTML
+![](/assets/coverage.png)
+
 
 
