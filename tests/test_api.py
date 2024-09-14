@@ -4,9 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db
 from app.main import app
+from datetime import datetime, timezone
 
 # Configuration de la base de données de test MySQL
-SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:@localhost:3306/test_db"
+SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:@localhost:3306/order_db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -22,6 +23,9 @@ app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
+def get_current_time():
+    return datetime.now(timezone.utc).isoformat()
+
 class TestAPI(unittest.TestCase):
 
     @classmethod
@@ -34,52 +38,57 @@ class TestAPI(unittest.TestCase):
         # Supprimer toutes les tables après les tests
         Base.metadata.drop_all(bind=engine)
 
+    def test_create_order(self):
+        order_data = {
+            "customerId": 1,
+            "createdAt": get_current_time(),
+            "updated_at": get_current_time(),
+            "status": 0
+        }
+        response = client.post("/orders/", json=order_data)
+        print("Create Order Response:", response.json())  # Debug
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("id_order", response.json())  # Vérifie que l'ID est présent
+        self.assertEqual(response.json()["status"], 0)
+
     def test_get_orders(self):
         response = client.get("/orders/")
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json(), list)
 
-    def test_create_order(self):
-        order_data = {
-            "customer_id": 1,
-            "status": "pending",
-            "order_date": "2024-09-14"
-        }
-        response = client.post("/orders/", json=order_data)
-        if response.status_code != 200:
-            print("Create Order Error:", response.json())
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "pending")
-
     def test_update_order(self):
         # Crée une commande pour tester la mise à jour
         order_data = {
-            "customer_id": 1,
-            "status": "pending",
-            "order_date": "2024-09-14"
+            "customerId": 1,
+            "createdAt": get_current_time(),
+            "updated_at": get_current_time(),
+            "status": 0
         }
         create_response = client.post("/orders/", json=order_data)
         created_order = create_response.json()
-        order_id = created_order["id"]
+        print("Create Order Response for Update:", created_order)  # Debug
+        order_id = created_order.get("id_order")
 
         # Met à jour la commande
         update_data = {
-            "status": "completed"
+            "status": 1
         }
         response = client.patch(f"/orders/{order_id}", json=update_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "completed")
+        self.assertEqual(response.json()["status"], 1)
 
     def test_delete_order(self):
         # Crée une commande pour tester la suppression
         order_data = {
-            "customer_id": 1,
-            "status": "pending",
-            "order_date": "2024-09-14"
+            "customerId": 1,
+            "createdAt": get_current_time(),
+            "updated_at": get_current_time(),
+            "status": 0
         }
         create_response = client.post("/orders/", json=order_data)
         created_order = create_response.json()
-        order_id = created_order["id"]
+        print("Create Order Response for Delete:", created_order)  # Debug
+        order_id = created_order.get("id_order")
 
         # Supprime la commande
         response = client.delete(f"/orders/{order_id}")
