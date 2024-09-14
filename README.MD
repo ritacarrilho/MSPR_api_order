@@ -107,7 +107,7 @@ python -m unittest tests/test_api.py
 
 | Test | Description | Type de Test |
 |------|-------------|--------------|
-| `test_database_connection` | Teste la connexion à la base de données. | Intégration |
+| `test_database_connection` | Teste la connexion à la base de données. | Unitaire |
 | `test_table_orders_exists` | Vérifie que la table 'orders' existe dans `test_db`. | Unitaire |
 | `test_table_order_products_exists` | Vérifie que la table 'order_products' existe dans `test_db`. | Unitaire |
 | `test_insert_into_orders` | Teste l'insertion d'une commande dans la table 'orders'. | Intégration |
