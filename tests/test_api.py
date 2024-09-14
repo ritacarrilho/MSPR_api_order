@@ -20,6 +20,17 @@ class TestDatabase(unittest.TestCase):
     def tearDownClass(cls):
         cls.session.close()
 
+    # Test de connexion à la base de données
+    def test_database_connection(self):
+        """Teste la connexion à la base de données."""
+        try:
+            connection = self.engine.connect()
+            self.assertTrue(connection)
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur de connexion à la base de données : {e}")
+        finally:
+            connection.close()
+
     # Test pour vérifier l'existence de la table 'orders'
     def test_table_orders_exists(self):
         """Vérifie que la table 'orders' existe dans test_db."""
@@ -28,8 +39,6 @@ class TestDatabase(unittest.TestCase):
             self.assertIn('orders', tables, "La table 'orders' n'existe pas dans la base de données.")
         except SQLAlchemyError as e:
             self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'orders' : {e}")
-        except Exception as e:
-            self.fail(f"Erreur lors de la vérification de la table 'orders' : {e}")
 
     # Test pour vérifier l'existence de la table 'order_products'
     def test_table_order_products_exists(self):
@@ -39,8 +48,6 @@ class TestDatabase(unittest.TestCase):
             self.assertIn('order_products', tables, "La table 'order_products' n'existe pas dans la base de données.")
         except SQLAlchemyError as e:
             self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'order_products' : {e}")
-        except Exception as e:
-            self.fail(f"Erreur lors de la vérification de la table 'order_products' : {e}")
 
     # Test pour insérer des données dans la table 'orders'
     def test_insert_into_orders(self):
@@ -54,6 +61,19 @@ class TestDatabase(unittest.TestCase):
             self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'orders' a échoué.")
         except SQLAlchemyError as e:
             self.fail(f"Erreur lors de l'insertion dans 'orders' : {e}")
+
+    # Test pour insérer des données dans la table 'order_products'
+    def test_insert_into_order_products(self):
+        """Teste l'insertion d'un produit dans la table 'order_products'."""
+        try:
+            insert_query = insert(self.order_products_table).values(productId=1, quantity=10, id_order=1)
+            result = self.session.execute(insert_query)
+            self.session.commit()
+            
+            # Vérifier que l'insertion a réussi
+            self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'order_products' a échoué.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de l'insertion dans 'order_products' : {e}")
 
     # Test pour lire des données dans la table 'orders'
     def test_read_from_orders(self):
@@ -93,6 +113,19 @@ class TestDatabase(unittest.TestCase):
             self.assertGreater(result.rowcount, 0, "Aucune ligne n'a été supprimée dans la table 'orders'.")
         except SQLAlchemyError as e:
             self.fail(f"Erreur lors de la suppression dans 'orders' : {e}")
+
+    # Test pour lire des données dans la table 'order_products'
+    def test_read_from_order_products(self):
+        """Teste la lecture des données insérées dans la table 'order_products'."""
+        try:
+            select_query = select([self.order_products_table]).where(self.order_products_table.c.id_order == 1)
+            result = self.session.execute(select_query).fetchone()
+            
+            # Vérifier que les données sont bien récupérées
+            self.assertIsNotNone(result, "Aucune donnée trouvée dans la table 'order_products'.")
+            self.assertEqual(result['productId'], 1, "Le champ 'productId' est incorrect.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de la lecture dans 'order_products' : {e}")
 
 if __name__ == '__main__':
     unittest.main()
