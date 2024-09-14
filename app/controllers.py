@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from .models import Order, OrderProduct
 from fastapi import HTTPException
 from .schemas import OrderCreate, OrderProductCreate, OrderUpdate, OrderProductUpdate
+from .publisher import publish_order_created, publish_order_updated, publish_order_deleted
 
 def get_all_orders(db: Session):
     return db.query(Order).all()
@@ -26,6 +27,7 @@ def create_order(db: Session, order: OrderCreate):
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
+    publish_order_created(db_order)
     return db_order
 
 def create_order_product(db: Session, order_product: OrderProductCreate):
@@ -45,6 +47,7 @@ def update_order(db: Session, order_id: int, order_data: OrderUpdate):
     for key, value in update_data.items():
         setattr(db_order, key, value)
 
+    publish_order_updated(db_order)
     db.commit()
     db.refresh(db_order)
 
@@ -70,6 +73,7 @@ def delete_order(db: Session, order_id: int):
     if db_order is None:
         raise HTTPException(status_code=404, detail="Order not found")
 
+    publish_order_deleted(order_id)
     db.delete(db_order)
     db.commit()
 
