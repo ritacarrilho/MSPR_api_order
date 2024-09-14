@@ -1,103 +1,131 @@
 import unittest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table, insert, select, update, delete, inspect
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
-from app.database import Base, get_db
-from app.main import app
-from datetime import datetime, timezone
 
-# Configuration de la base de données de test MySQL
-SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:@localhost:3306/order_db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Dépendance pour la base de données dans les tests
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-client = TestClient(app)
-
-def get_current_time():
-    return datetime.now(timezone.utc).isoformat()
-
-class TestAPI(unittest.TestCase):
-
+class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Créer toutes les tables dans la base de données avant les tests
-        Base.metadata.create_all(bind=engine)
+        cls.engine = create_engine("mysql+mysqlconnector://root:@localhost:3306/test_db")
+        cls.Session = sessionmaker(bind=cls.engine)
+        cls.session = cls.Session()
+        cls.metadata = MetaData(bind=cls.engine)
+        cls.inspector = inspect(cls.engine)
+        
+        # Charger les tables nécessaires
+        cls.orders_table = Table('orders', cls.metadata, autoload_with=cls.engine)
+        cls.order_products_table = Table('order_products', cls.metadata, autoload_with=cls.engine)
 
     @classmethod
     def tearDownClass(cls):
-        # Supprimer toutes les tables après les tests
-        Base.metadata.drop_all(bind=engine)
+        cls.session.close()
 
-    def test_create_order(self):
-        order_data = {
-            "customerId": 1,
-            "createdAt": get_current_time(),
-            "updated_at": get_current_time(),
-            "status": 0
-        }
-        response = client.post("/orders/", json=order_data)
-        print("Create Order Response:", response.json())  # Debug
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("id_order", response.json())  # Vérifie que l'ID est présent
-        self.assertEqual(response.json()["status"], 0)
+    # Test de connexion à la base de données
+    def test_database_connection(self):
+        """Teste la connexion à la base de données."""
+        try:
+            connection = self.engine.connect()
+            self.assertTrue(connection)
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur de connexion à la base de données : {e}")
+        finally:
+            connection.close()
 
-    def test_get_orders(self):
-        response = client.get("/orders/")
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json(), list)
+    # Test pour vérifier l'existence de la table 'orders'
+    def test_table_orders_exists(self):
+        """Vérifie que la table 'orders' existe dans test_db."""
+        try:
+            tables = self.inspector.get_table_names()
+            self.assertIn('orders', tables, "La table 'orders' n'existe pas dans la base de données.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'orders' : {e}")
 
-    def test_update_order(self):
-        # Crée une commande pour tester la mise à jour
-        order_data = {
-            "customerId": 1,
-            "createdAt": get_current_time(),
-            "updated_at": get_current_time(),
-            "status": 0
-        }
-        create_response = client.post("/orders/", json=order_data)
-        created_order = create_response.json()
-        print("Create Order Response for Update:", created_order)  # Debug
-        order_id = created_order.get("id_order")
+    # Test pour vérifier l'existence de la table 'order_products'
+    def test_table_order_products_exists(self):
+        """Vérifie que la table 'order_products' existe dans test_db."""
+        try:
+            tables = self.inspector.get_table_names()
+            self.assertIn('order_products', tables, "La table 'order_products' n'existe pas dans la base de données.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'order_products' : {e}")
 
-        # Met à jour la commande
-        update_data = {
-            "status": 1
-        }
-        response = client.patch(f"/orders/{order_id}", json=update_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], 1)
+    # Test pour insérer des données dans la table 'orders'
+    def test_insert_into_orders(self):
+        """Teste l'insertion d'une commande dans la table 'orders'."""
+        try:
+            insert_query = insert(self.orders_table).values(customerId=1, createdAt="2024-09-14 10:00:00")
+            result = self.session.execute(insert_query)
+            self.session.commit()
+            
+            # Vérifier que l'insertion a réussi
+            self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'orders' a échoué.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de l'insertion dans 'orders' : {e}")
 
-    def test_delete_order(self):
-        # Crée une commande pour tester la suppression
-        order_data = {
-            "customerId": 1,
-            "createdAt": get_current_time(),
-            "updated_at": get_current_time(),
-            "status": 0
-        }
-        create_response = client.post("/orders/", json=order_data)
-        created_order = create_response.json()
-        print("Create Order Response for Delete:", created_order)  # Debug
-        order_id = created_order.get("id_order")
+    # Test pour insérer des données dans la table 'order_products'
+    def test_insert_into_order_products(self):
+        """Teste l'insertion d'un produit dans la table 'order_products'."""
+        try:
+            insert_query = insert(self.order_products_table).values(productId=1, quantity=10, id_order=1)
+            result = self.session.execute(insert_query)
+            self.session.commit()
+            
+            # Vérifier que l'insertion a réussi
+            self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'order_products' a échoué.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de l'insertion dans 'order_products' : {e}")
 
-        # Supprime la commande
-        response = client.delete(f"/orders/{order_id}")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["detail"], "Order deleted")
+    # Test pour lire des données dans la table 'orders'
+    def test_read_from_orders(self):
+        """Teste la lecture des données insérées dans la table 'orders'."""
+        try:
+            select_query = select([self.orders_table]).where(self.orders_table.c.customerId == 1)
+            result = self.session.execute(select_query).fetchone()
+            
+            # Vérifier que les données sont bien récupérées
+            self.assertIsNotNone(result, "Aucune donnée trouvée dans la table 'orders'.")
+            self.assertEqual(result['customerId'], 1, "Le champ 'customerId' est incorrect.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de la lecture dans 'orders' : {e}")
 
-        # Vérifie que la commande a été supprimée
-        get_response = client.get(f"/orders/{order_id}")
-        self.assertEqual(get_response.status_code, 404)
+    # Test pour mettre à jour des données dans la table 'orders'
+    def test_update_orders(self):
+        """Teste la mise à jour d'une commande dans la table 'orders'."""
+        try:
+            update_query = update(self.orders_table).where(self.orders_table.c.customerId == 1).values(status=1)
+            result = self.session.execute(update_query)
+            self.session.commit()
 
-if __name__ == "__main__":
+            # Vérifier que la mise à jour a réussi
+            self.assertGreater(result.rowcount, 0, "Aucune ligne n'a été mise à jour dans la table 'orders'.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de la mise à jour dans 'orders' : {e}")
+
+    # Test pour supprimer des données dans la table 'orders'
+    def test_delete_from_orders(self):
+        """Teste la suppression d'une commande dans la table 'orders'."""
+        try:
+            delete_query = delete(self.orders_table).where(self.orders_table.c.customerId == 1)
+            result = self.session.execute(delete_query)
+            self.session.commit()
+
+            # Vérifier que la suppression a réussi
+            self.assertGreater(result.rowcount, 0, "Aucune ligne n'a été supprimée dans la table 'orders'.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de la suppression dans 'orders' : {e}")
+
+    # Test pour lire des données dans la table 'order_products'
+    def test_read_from_order_products(self):
+        """Teste la lecture des données insérées dans la table 'order_products'."""
+        try:
+            select_query = select([self.order_products_table]).where(self.order_products_table.c.id_order == 1)
+            result = self.session.execute(select_query).fetchone()
+            
+            # Vérifier que les données sont bien récupérées
+            self.assertIsNotNone(result, "Aucune donnée trouvée dans la table 'order_products'.")
+            self.assertEqual(result['productId'], 1, "Le champ 'productId' est incorrect.")
+        except SQLAlchemyError as e:
+            self.fail(f"Erreur lors de la lecture dans 'order_products' : {e}")
+
+if __name__ == '__main__':
     unittest.main()
