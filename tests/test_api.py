@@ -7,7 +7,7 @@ from app.main import app
 from datetime import datetime, timezone
 
 # Configuration de la base de données de test MySQL
-SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:@localhost:3306/order_db"
+SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:@localhost:3306/test_db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
