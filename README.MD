@@ -101,15 +101,15 @@ Exécuter les tests :
 ```python
 python -m unittest tests/test_api.py
 ```
-### Tests unitaires
+### Tests unitaires et d'intégration
 
-- `test_create_order` vérifie la création d'une commande.
+| **Nom du Test**                       | **Description**                                                         | **Type de Test**         |
+|---------------------------------------|-------------------------------------------------------------------------|--------------------------|
+| `test_table_orders_exists`            | Vérifie que la table `orders` existe dans la base de données.            | Test unitaire            |
+| `test_table_order_products_exists`    | Vérifie que la table `order_products` existe dans la base de données.     | Test unitaire            |
+| `test_insert_into_orders`             | Teste l'insertion d'une nouvelle commande dans la table `orders`.         | Test d'intégration       |
+| `test_read_from_orders`               | Teste la lecture des données insérées dans la table `orders`.             | Test d'intégration       |
+| `test_update_orders`                  | Teste la mise à jour du champ `status` d'une commande dans `orders`.      | Test d'intégration       |
+| `test_delete_from_orders`             | Teste la suppression d'une commande dans la table `orders`.               | Test d'intégration       |
 
-- `test_get_orders` teste la récupération des commandes.
-
-- `test_update_order` teste la mise à jour d'une commande.
-
-- `test_delete_order` teste la suppression d'une commande.
-
-### Tests d'itnégration
 
