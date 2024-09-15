@@ -17,6 +17,7 @@ services:
       - ./database/scripts:/docker-entrypoint-initdb.d
     networks:
       - kawa-orders-network
+      - kawa-shared-network
 
   kawa-orders-app:
     container_name: kawa_orders
@@ -32,9 +33,22 @@ services:
       - kawa-orders-network
       - kawa-shared-network
 
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: user
+  #     RABBITMQ_DEFAULT_PASS: password
+  #   networks:
+  #     - kawa-shared-network
+
 volumes:
   orders-data:
 
 networks:
   kawa-orders-network:
   kawa-shared-network:
+    external: true

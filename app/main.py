@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List 
 from . import controllers, schemas
 from .database import get_db
+import threading
+from datetime import datetime
+from .broker.publisher import start_order_service_listener
 
 app = FastAPI(
     title="Paye ton kawa",
@@ -52,3 +55,11 @@ def delete_order(id: int, db: Session = Depends(get_db)):
 def delete_order_product(id: int, db: Session = Depends(get_db)):
     controllers.delete_order_product(db, id)
     return {"detail": "OrderProduct deleted"}
+
+
+
+
+
+# Start the listener in a separate thread
+listener_thread = threading.Thread(target=start_order_service_listener)
+listener_thread.start()

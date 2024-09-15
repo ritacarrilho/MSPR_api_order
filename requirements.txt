@@ -7,3 +7,5 @@ python-dotenv
 mysql-connector-python
 sqlalchemy
 sqlalchemy-utils
+pika
+aio-pika
