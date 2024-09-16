@@ -128,7 +128,7 @@ jobs:
         run: |
           STEP_NAME=${{ github.job }}
           curl -X POST -H "Content-Type: application/json" -d '{
-            "content": "<@&ROLE_ID> **Pipeline Failure**\n\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Failed Step:** '"${STEP_NAME}"'"
+            "content": "<@&ROLE_ID> **Pipeline Failure - API ORDER**\n\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Failed Step:** '"${STEP_NAME}"'"
           }' $DISCORD_WEBHOOK_URL
 
       - name: Send Discord release notes on success
@@ -148,7 +148,7 @@ jobs:
       
           # Envoyer les informations sur Discord
           curl -X POST -H "Content-Type: application/json" -d '{
-            "content": "**Release Notes**\n\n**Commit N°**: '"${COMMIT_SHA}"'\n**Auteur du commit**: '"${COMMIT_AUTHOR}"'\n**Date du commit**: '"${COMMIT_DATE}"'\n**Heure du commit**: '"${COMMIT_TIME}"'\n**Description commit**: '"${COMMIT_MESSAGE}"'"
+            "content": "**Release Notes - API ORDER**\n\n**Commit N°**: '"${COMMIT_SHA}"'\n**Auteur du commit**: '"${COMMIT_AUTHOR}"'\n**Date du commit**: '"${COMMIT_DATE}"'\n**Heure du commit**: '"${COMMIT_TIME}"'\n**Description commit**: '"${COMMIT_MESSAGE}"'"
           }' "$DISCORD_WEBHOOK_URL_RELEASE"
 
       # - name: Send Discord notification on release failure
