@@ -31,7 +31,11 @@ jobs:
       - name: Run Docker container
         run: |
           docker run -d -p 8000:8000 --name myapi-container myapi-image
-          sleep 30  # Attendre que l'API soit disponible
+          sleep 60  # Attendre que l'API soit disponible
+
+      - name: Check Docker container logs
+        run: |
+          docker logs myapi-container
 
       - name: Test API
         run: |
