@@ -92,3 +92,20 @@ jobs:
           curl -X POST -H "Content-Type: application/json" -d '{
             "content": "<@&ROLE_ID> **Pipeline Failure**\n\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Failed Step:** '"${STEP_NAME}"'"
           }' $DISCORD_WEBHOOK_URL
+
+      - name: Send Discord release notes on success
+        if: success()  # Si toutes les étapes précédentes sont réussies
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Récupérer les informations du dernier commit
+          COMMIT_SHA=$(git rev-parse HEAD)
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_DATE=$(git log -1 --pretty=format:'%ad' --date=format:'%Y-%m-%d')
+          COMMIT_TIME=$(git log -1 --pretty=format:'%ad' --date=format:'%H:%M')
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+      
+          # Envoyer les informations sur Discord
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "content": "**Release Notes**\n\n**Commit N°**: '"${COMMIT_SHA}"'\n**Auteur du commit**: '"${COMMIT_AUTHOR}"'\n**Date du commit**: '"${COMMIT_DATE}"'\n**Heure du commit**: '"${COMMIT_TIME}"'\n**Description commit**: '"${COMMIT_MESSAGE}"'"
+          }' $DISCORD_WEBHOOK_URL
