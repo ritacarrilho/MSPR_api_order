@@ -46,7 +46,7 @@ jobs:
       - name: Test API
         run: |
           for i in {1..10}; do
-            if curl -s http://localhost:8082/ | grep "expected_response"; then
+            if curl -s http://localhost:8081/ | grep "expected_response"; then
               echo "API is up!"
               exit 0
             fi
