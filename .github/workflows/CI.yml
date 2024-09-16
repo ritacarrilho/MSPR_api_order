@@ -95,6 +95,11 @@ jobs:
           git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} release
           echo "Merge et push forcé de la branche main vers release validé"
 
-      - name: Check test failure
+      - name: Send Discord notification on failure
         if: failure()  # Si une étape précédente a échoué
-        run: echo "Échec du test ou du démarrage des conteneurs !"
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "content": "<@&ROLE_ID> Pipeline Failure\n\nRepository: ${{ github.repository }}\nCommit SHA: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\n"
+          }' $DISCORD_WEBHOOK_URL
