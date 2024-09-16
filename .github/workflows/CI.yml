@@ -96,7 +96,7 @@ jobs:
       - name: Send Discord release notes on success
         if: success()  # Si toutes les étapes précédentes sont réussies
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_RELEASE }}
         run: |
           # Récupérer les informations du dernier commit
           COMMIT_SHA=$(git rev-parse HEAD)
@@ -108,4 +108,4 @@ jobs:
           # Envoyer les informations sur Discord
           curl -X POST -H "Content-Type: application/json" -d '{
             "content": "**Release Notes**\n\n**Commit N°**: '"${COMMIT_SHA}"'\n**Auteur du commit**: '"${COMMIT_AUTHOR}"'\n**Date du commit**: '"${COMMIT_DATE}"'\n**Heure du commit**: '"${COMMIT_TIME}"'\n**Description commit**: '"${COMMIT_MESSAGE}"'"
-          }' $DISCORD_WEBHOOK_URL
+          }' $DISCORD_WEBHOOK_URL_RELEASE
