@@ -60,8 +60,8 @@ jobs:
           fi
 
           # Effectue une requête HTTP pour vérifier si l'API répond
-          if ! curl -s http://localhost:8081/docs | grep "expected_response"; then
-            echo "L'API sur http://localhost:8081/docs ne répond pas comme prévu !"
+          if ! curl -s http://localhost:8081/ | grep "expected_response"; then
+            echo "L'API sur http://localhost:8081/ ne répond pas comme prévu !"
             exit 1
           fi
 
