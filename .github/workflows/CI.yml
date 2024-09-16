@@ -21,34 +21,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12.4'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Install dependencies
+      - name: Build Docker image
         run: |
-          pip install -r requirements.txt
-          pip install fastapi[standard]
-          pip install uvicorn
+          docker build -t myapi-image .
 
-      # - name: Start API
-      #   run: |
-      #     cd app
-      #     nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 &  # Utiliser uvicorn pour démarrer l'API
-      #     sleep 30  # Attendre que l'API soit disponible
+      - name: Run Docker container
+        run: |
+          docker run -d -p 8000:8000 --name myapi-container myapi-image
+          sleep 30  # Attendre que l'API soit disponible
 
-      # - name: Wait for API to be available
-      #   run: |
-      #     for i in {1..10}; do
-      #       if curl -s http://localhost:8000/; then
-      #         echo "API is up!"
-      #         exit 0
-      #       fi
-      #       echo "Waiting for API to be available..."
-      #       sleep 5
-      #     done
-      #     exit 1  # Échoue le job si l'API n'est pas disponible
+      - name: Test API
+        run: |
+          for i in {1..10}; do
+            if curl -s http://localhost:8000/; then
+              echo "API is up!"
+              exit 0
+            fi
+            echo "Waiting for API to be available..."
+            sleep 5
+          done
+          exit 1  # Échoue le job si l'API n'est pas disponible
 
       - name: Checkout release branch with token
         if: success()  # Si l'API est disponible
