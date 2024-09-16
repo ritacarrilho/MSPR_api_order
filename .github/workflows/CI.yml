@@ -111,7 +111,7 @@ jobs:
           # Envoyer les informations sur Discord
           curl -X POST -H "Content-Type: application/json" -d '{
             "content": "**Release Notes**\n\n**Commit N°**: '"${COMMIT_SHA}"'\n**Auteur du commit**: '"${COMMIT_AUTHOR}"'\n**Date du commit**: '"${COMMIT_DATE}"'\n**Heure du commit**: '"${COMMIT_TIME}"'\n**Description commit**: '"${COMMIT_MESSAGE}"'"
-          }' "$DISCORD_WEBHOOK_URL_RELEASE"
+          }' "$DISCORD_WEBHOOK_URL_RELEAS"
 
       - name: Send Discord notification on release failure
         if: failure() && steps.Send_Discord_release_notes.outcome == 'failure'  # Si l'étape d'envoi des release notes échoue
