@@ -83,6 +83,26 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         continue-on-error: true
 
+      - name: Update version in files on main
+        if: success()
+        run: |
+          VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          echo "Updating version to $VERSION"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+        continue-on-error: true
+
+      - name: Commit updated package.json on main
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          git add package.json
+          VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          echo "Updating version to $VERSION"
+          git commit -m "Update version to $VERSION [skip ci]"
+          git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git main
+        continue-on-error: true
+        
       - name: Checkout release branch with token
         if: success()
         uses: actions/checkout@v3
