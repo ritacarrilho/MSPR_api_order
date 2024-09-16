@@ -46,7 +46,24 @@ jobs:
       - name: Verify Docker containers are running
         run: |
           docker ps
-          # Vous pouvez ajouter d'autres vérifications ici pour vous assurer que les conteneurs sont bien en cours d'exécution
+
+           # Vérifie si le conteneur kawa-orders-app est en cours d'exécution
+          if ! docker ps | grep kawa-orders-app; then
+            echo "Le conteneur kawa-orders-app n'est pas en cours d'exécution !"
+            exit 1
+          fi
+
+          # Vérifie si le port 8081 est accessible sur le conteneur kawa-orders-app
+          if ! nc -zv localhost 8081; then
+            echo "Le port 8081 sur le conteneur kawa-orders-app n'est pas accessible !"
+            exit 1
+          fi
+
+          # Effectue une requête HTTP pour vérifier si l'API répond
+          if ! curl -s http://localhost:8081/ | grep "expected_response"; then
+            echo "L'API sur http://localhost:8081/ ne répond pas comme prévu !"
+            exit 1
+          fi
 
       - name: Checkout release branch with token
         if: success()  # Si les images sont construites et les conteneurs démarrent
