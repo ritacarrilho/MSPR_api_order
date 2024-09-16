@@ -24,28 +24,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker image
+      - name: Build Docker images
         run: |
-          docker build -t myapi-image .
+          docker-compose build
 
-      - name: Run Docker container
+      - name: Start Docker containers
         run: |
-          docker run -d -p 8000:8000 --name myapi-container myapi-image
-          sleep 60  # Attendre que l'API soit disponible
+          docker-compose up -d
+          sleep 60  # Augmenter le temps d'attente pour être sûr que les services sont disponibles
 
       - name: Check Docker container logs
         run: |
-          docker logs myapi-container
+          docker-compose logs kawa-orders-app
 
       - name: Test API
         run: |
           for i in {1..10}; do
-            if curl -s http://localhost:8000/; then
+            if curl -s http://localhost:8081/ | grep "expected_response"; then
               echo "API is up!"
               exit 0
             fi
             echo "Waiting for API to be available..."
-            sleep 5
+            sleep 10
           done
           exit 1  # Échoue le job si l'API n'est pas disponible
 
