@@ -39,6 +39,26 @@ jobs:
           docker-compose up -d
           sleep 60
 
+      - name: Wait for the database to be ready
+        run: |
+          echo "Waiting for the database to be ready..."
+          for i in {1..10}; do
+            if nc -zv localhost 3306; then  # Remplace 3306 par le port de ta base de données
+              echo "Database is ready!"
+              break
+            else
+              echo "Database is not ready yet... waiting"
+              sleep 10
+            fi
+          done
+
+          # Échec si la base de données n'est toujours pas prête après 10 tentatives
+          if ! nc -zv localhost 3306; then
+            echo "Database failed to start!"
+            exit 1
+          fi
+        continue-on-error: true
+
       - name: Check Docker container logs
         run: |
           docker-compose logs kawa-orders-app
