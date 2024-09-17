@@ -1,4 +1,4 @@
-name: test
+name: CI
 
 on: [push]
 
@@ -22,9 +22,9 @@ jobs:
           docker-compose -f docker-compose.yaml up -d
         timeout-minutes: 20
 
-      - name: List files in tests directory
+      - name: Wait for MySQL to be ready
         run: |
-          docker-compose exec -T kawa-orders-app ls -R /app/tests
+          docker-compose exec -T kawa-orders-db sh -c "until mysqladmin ping -hlocalhost -uorders -pkawaorders --silent; do sleep 1; done"
 
       - name: Run tests
         run: |
