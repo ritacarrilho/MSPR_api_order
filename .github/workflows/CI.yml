@@ -39,24 +39,14 @@ jobs:
           docker-compose up -d
           sleep 60
 
-      - name: Wait for the database to be ready
-        run: |
-          echo "Waiting for the database to be ready..."
-          for i in {1..10}; do
-            if nc -zv kawa-orders-db 3306; then  # Utiliser le nom du service Docker pour MySQL
-              echo "Database is ready!"
-              break
-            else
-              echo "Database is not ready yet... waiting"
-              sleep 10
-            fi
-          done
-      
-          # Échec si la base de données n'est toujours pas prête après 10 tentatives
-          if ! nc -zv kawa-orders-db 3306; then
-            echo "Database failed to start!"
-            exit 1
-          fi
+      - name: Download wait-for-it script
+        run: wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+
+      - name: Make wait-for-it executable
+        run: chmod +x wait-for-it.sh
+
+      - name: Wait for MySQL to be ready
+        run: ./wait-for-it.sh kawa-orders-db:3306 --timeout=60 --strict -- echo "MySQL is up"
 
       - name: Check Docker container logs
         run: |
@@ -76,6 +66,25 @@ jobs:
             exit 1
           fi
         continue-on-error: true
+
+      - name: Wait for the database to be ready
+        run: |
+          echo "Waiting for the database to be ready..."
+          for i in {1..10}; do
+            if nc -zv kawa-orders-db 3306; then  # Utiliser le nom du service Docker pour MySQL
+              echo "Database is ready!"
+              break
+            else
+              echo "Database is not ready yet... waiting"
+              sleep 10
+            fi
+          done
+      
+          # Échec si la base de données n'est toujours pas prête après 10 tentatives
+          if ! nc -zv kawa-orders-db 3306; then
+            echo "Database failed to start!"
+            exit 1
+          fi
 
       - name: Run unit tests
         run: |
