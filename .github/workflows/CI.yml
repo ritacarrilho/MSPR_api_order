@@ -39,14 +39,14 @@ jobs:
           docker-compose up -d
           sleep 60
 
-      - name: Download wait-for-it script
-        run: wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+      # - name: Download wait-for-it script
+      #   run: wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
     
-      - name: Make wait-for-it executable
-        run: chmod +x wait-for-it.sh
+      # - name: Make wait-for-it executable
+      #   run: chmod +x wait-for-it.sh
     
-      - name: Wait for MySQL to be ready
-        run: ./wait-for-it.sh kawa-orders-db:3306 --timeout=120 --strict -- echo "MySQL is up"
+      # - name: Wait for MySQL to be ready
+      #   run: ./wait-for-it.sh kawa-orders-db:3306 --timeout=120 --strict -- echo "MySQL is up"
 
       - name: Check Docker container logs
         run: |
