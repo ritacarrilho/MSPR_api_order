@@ -1,4 +1,5 @@
-from ..models import Order
+from sqlalchemy.orm import Session
+from ..models import Order, OrderProduct
 from ..schemas import CustomerOrdersResponse, CustomerOrder
 
 # Function to fetch orders from the database
@@ -23,3 +24,19 @@ def fetch_orders_for_customer(db, customer_id: int):
         return CustomerOrdersResponse(customer_id=customer_id, orders=order_list)
     finally:
         db.close()
+
+
+def fetch_order_products(db: Session, order_id: int):
+    """Fetch the products associated with a specific order ID."""
+    try:
+        # Query the OrderProduct table to get products for a specific order
+        order_products = db.query(OrderProduct).filter(OrderProduct.id_order == order_id).all()
+        
+        # Return the list of order products or None if no products found
+        return order_products if order_products else None
+
+    except Exception as e:
+        raise Exception(f"Error fetching products for order {order_id}: {str(e)}")
+    
+
+
