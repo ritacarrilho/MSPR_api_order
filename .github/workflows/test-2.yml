@@ -16,7 +16,7 @@ jobs:
           MYSQL_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd "mysqladmin ping --silent" --health-interval 10s
+        options: --health-cmd "mysqladmin ping --silent" --health-interval 10s --health-timeout 5s
 
     steps:
       - name: Checkout code
@@ -30,6 +30,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysql -h 127.0.0.1 -u root -proot -e 'SHOW DATABASES;' > /dev/null 2>&1; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 5
+          done
 
       - name: Copy database
         run: |
