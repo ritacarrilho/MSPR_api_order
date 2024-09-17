@@ -21,15 +21,12 @@ jobs:
 
       - name: Install MySQL client
         run: |
+          sudo apt-get update
           sudo apt-get install -y mysql-client
 
       - name: Create and populate test database
-        env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD < path/to/creat_test_db.txt
+          mysql -h localhost -u root -proot < path/to/creat_test_db.txt
 
       - name: Run tests
         run: |
