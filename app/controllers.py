@@ -22,6 +22,14 @@ def get_order_product_by_id(db: Session, order_product_id: int):
         raise HTTPException(status_code=404, detail="OrderProduct not found")
     return order_product
 
+def get_order_products(db: Session, order_id: int):
+    order_products = db.query(OrderProduct).filter(OrderProduct.id_order == order_id).all()
+    print(order_products)
+
+    if not order_products:
+        raise HTTPException(status_code=404, detail="No products found for the given order")
+    return order_products
+
 def create_order(db: Session, order: OrderCreate):
     db_order = Order(**order.dict())
     db.add(db_order)
@@ -81,23 +89,3 @@ def delete_order_product(db: Session, order_product_id: int):
 
     db.delete(db_order_product)
     db.commit()
-
-def fetch_orders_for_customer(db, customer_id: int):
-    try:
-        orders = db.query(Order).filter(Order.customerId == customer_id).all()
-        if not orders:
-            return None 
-        
-        order_list = [
-            CustomerOrder(
-                id_order=order.id_order,
-                createdAt=order.createdAt,
-                updated_at=order.updated_at,
-                status=order.status
-            )
-            for order in orders
-        ]
-
-        return CustomerOrdersResponse(customer_id=customer_id, orders=order_list)
-    finally:
-        db.close() 
