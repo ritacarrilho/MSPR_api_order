@@ -57,12 +57,12 @@ jobs:
           docker ps
 
           if ! docker ps | grep kawa-orders-app; then
-            echo "Le conteneur kawa-orders-app n'est pas en cours d'exécution !"
+            echo "Le conteneur n'est pas en cours d'exécution !"
             exit 1
           fi
 
           if ! nc -zv localhost 8081; then
-            echo "Le port 8081 sur le conteneur kawa-orders-app n'est pas accessible !"
+            echo "Le port 8081 sur le conteneur n'est pas accessible !"
             exit 1
           fi
         continue-on-error: true
