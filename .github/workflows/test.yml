@@ -1,4 +1,4 @@
-name: CI
+name: test
 
 on: [push]
 
@@ -22,10 +22,14 @@ jobs:
           docker-compose -f docker-compose.yaml up -d
         timeout-minutes: 20
 
-      - name: Display Docker Compose logs
+      - name: List files in tests directory
         run: |
-          docker-compose logs
+          docker-compose exec -T kawa-orders-app ls -R /app/tests
 
       - name: Run tests
         run: |
-          docker-compose exec -T kawa-orders-app python -m unittest discover
+          docker-compose exec -T kawa-orders-app python -m unittest discover -s tests
+
+      - name: Display Docker Compose logs
+        run: |
+          docker-compose logs
