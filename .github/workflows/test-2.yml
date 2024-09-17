@@ -6,6 +6,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd "mysqladmin ping --silent" --health-interval 10s
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,9 +34,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mysql-client
 
+      - name: Wait for MySQL to be ready
+        run: |
+          while ! mysqladmin ping -h127.0.0.1 --silent; do sleep 1; done
+
       - name: Create and populate test database
         run: |
-          mysql -h localhost -u root -proot < tests/create_test_db.sql
+          mysql -h 127.0.0.1 -u root -proot test_db < tests/create_test_db.sql
 
       - name: Run tests
         run: |
