@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "Waiting for the database to be ready..."
           for i in {1..10}; do
-            if nc -zv localhost 3306; then  # Remplace 3306 par le port de ta base de données
+            if nc -zv kawa-orders-db 3306; then  # Utiliser le nom du service Docker pour MySQL
               echo "Database is ready!"
               break
             else
@@ -51,13 +51,13 @@ jobs:
               sleep 10
             fi
           done
-
+      
           # Échec si la base de données n'est toujours pas prête après 10 tentatives
-          if ! nc -zv localhost 3306; then
+          if ! nc -zv kawa-orders-db 3306; then
             echo "Database failed to start!"
             exit 1
           fi
-        continue-on-error: true
+          continue-on-error: true
 
       - name: Check Docker container logs
         run: |
