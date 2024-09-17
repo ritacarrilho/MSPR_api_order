@@ -7,3 +7,4 @@ python-dotenv
 mysql-connector-python
 sqlalchemy
 sqlalchemy-utils
+mock
