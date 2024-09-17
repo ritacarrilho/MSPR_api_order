@@ -7,15 +7,16 @@ class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.engine = create_engine('mysql+mysqlconnector://orders:kawaorders@kawa-orders-db:3306/order_db')
-        # cls.engine = create_engine("mysql+mysqlconnector://root:@localhost:3306/test_db")
         cls.Session = sessionmaker(bind=cls.engine)
         cls.session = cls.Session()
-        cls.metadata = MetaData(bind=cls.engine)
+        cls.metadata = MetaData()  # Pas de 'bind' ici
+        cls.metadata.bind = cls.engine
         cls.inspector = inspect(cls.engine)
         
         # Charger les tables nécessaires
         cls.orders_table = Table('orders', cls.metadata, autoload_with=cls.engine)
         cls.order_products_table = Table('order_products', cls.metadata, autoload_with=cls.engine)
+
 
     @classmethod
     def tearDownClass(cls):
