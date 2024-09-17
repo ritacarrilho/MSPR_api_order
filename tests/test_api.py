@@ -7,6 +7,7 @@ class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.engine = create_engine('mysql+mysqlconnector://orders:kawaorders@kawa-orders-db:3306/order_db')
+        # cls.engine = create_engine("mysql+mysqlconnector://root:@localhost:3306/test_db")
         cls.Session = sessionmaker(bind=cls.engine)
         cls.session = cls.Session()
         cls.metadata = MetaData(bind=cls.engine)
