@@ -73,7 +73,7 @@ jobs:
 
           # Exécuter les tests avec unittest
           python -m unittest discover -s tests -p "test_api.py"
-        continue-on-error: true
+        continue-on-error: false
 
         # Builder et pousser l'image Docker après la vérification des conteneurs
       - name: Log in to Docker Hub
