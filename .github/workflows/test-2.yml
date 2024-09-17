@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-name: Run Tests
+name: test-1
 
 on:
   push:
