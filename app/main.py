@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List 
 from . import controllers, schemas
 from .database import get_db
+import threading
+from .messaging.listener import start_order_service_listener
+from .messaging.publisher import send_rabbitmq_message
 
 app = FastAPI(
     title="Paye ton kawa",
@@ -18,6 +21,10 @@ def get_orders(db: Session = Depends(get_db)):
 @app.get("/orders/{id}", response_model=schemas.Order, tags=["orders"])
 def get_order(id: int, db: Session = Depends(get_db)):
     return controllers.get_order_by_id(db, id)
+
+@app.get("/orders/{id}/products", response_model=List[schemas.OrderProduct], tags=["orders"])
+def get_order_products(id: int, db: Session = Depends(get_db)):
+    return controllers.get_order_products(db, id)
 
 @app.get("/order-products/", response_model=List[schemas.OrderProduct], tags=["order-products"])
 def get_order_products(db: Session = Depends(get_db)):
@@ -52,3 +59,19 @@ def delete_order(id: int, db: Session = Depends(get_db)):
 def delete_order_product(id: int, db: Session = Depends(get_db)):
     controllers.delete_order_product(db, id)
     return {"detail": "OrderProduct deleted"}
+
+@app.get("/orders/{order_id}/products-details", tags=["order-products"])
+async def get_order_products_details(order_id: int, db: Session = Depends(get_db)):
+    order_products = controllers.get_order_products(db, order_id)
+    
+    product_ids = [op.productId for op in order_products]
+
+    # Request product details from the Product Service via RabbitMQ
+    product_details = send_rabbitmq_message('product_details_queue', {"product_ids": product_ids})
+    print(product_details)
+    
+    return {"order_id": order_id, "products": product_details}
+
+# Start RabbitMQ listener in a separate thread
+listener_thread = threading.Thread(target=start_order_service_listener)
+listener_thread.start()

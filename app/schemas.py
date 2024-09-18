@@ -53,3 +53,17 @@ class OrderProductUpdate(BaseModel):
     productId: Optional[int] = None
     quantity: Optional[int] = None
     id_order: Optional[int] = None
+
+
+class CustomerOrder(BaseModel):
+    id_order: int
+    createdAt: datetime
+    updated_at: datetime
+    status: int
+
+class CustomerOrdersResponse(BaseModel):
+    customer_id: int
+    orders: List[CustomerOrder]
+
+    class Config:
+        orm_mode = True

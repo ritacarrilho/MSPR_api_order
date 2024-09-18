@@ -17,6 +17,7 @@ services:
       - ./database/scripts:/docker-entrypoint-initdb.d
     networks:
       - kawa-orders-network
+      - kawa-shared-network
 
   kawa-orders-app:
     container_name: kawa_orders
@@ -38,3 +39,4 @@ volumes:
 networks:
   kawa-orders-network:
   kawa-shared-network:
+    external: true

@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from .models import Order, OrderProduct
 from fastapi import HTTPException
-from .schemas import OrderCreate, OrderProductCreate, OrderUpdate, OrderProductUpdate
+from .schemas import OrderCreate, OrderProductCreate, OrderUpdate, OrderProductUpdate, CustomerOrder, CustomerOrdersResponse
+
 
 def get_all_orders(db: Session):
     return db.query(Order).all()
@@ -20,6 +21,14 @@ def get_order_product_by_id(db: Session, order_product_id: int):
     if order_product is None:
         raise HTTPException(status_code=404, detail="OrderProduct not found")
     return order_product
+
+def get_order_products(db: Session, order_id: int):
+    order_products = db.query(OrderProduct).filter(OrderProduct.id_order == order_id).all()
+    print(order_products)
+
+    if not order_products:
+        raise HTTPException(status_code=404, detail="No products found for the given order")
+    return order_products
 
 def create_order(db: Session, order: OrderCreate):
     db_order = Order(**order.dict())
