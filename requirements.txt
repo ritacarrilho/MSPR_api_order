@@ -9,3 +9,4 @@ sqlalchemy
 sqlalchemy-utils
 pika
 aio-pika
+mock

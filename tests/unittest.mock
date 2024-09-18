@@ -1,0 +1,23 @@
+from unittest import TestCase, mock
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.engine import Engine
+
+class TestDatabase(TestCase):
+    @classmethod
+    @mock.patch('sqlalchemy.create_engine')
+    def setUpClass(cls, mock_create_engine):
+        # Créez un mock pour l'objet engine
+        cls.mock_engine = mock_create_engine.return_value
+        cls.mock_connection = mock.Mock()
+        cls.mock_engine.connect.return_value = cls.mock_connection
+        cls.inspector = mock.Mock()
+        cls.inspector.get_table_names.return_value = ['test_table']
+        cls.mock_engine.dialect.get_inspector.return_value = cls.inspector
+
+        # Optionnel : Testez que le mock est configuré correctement
+        with cls.mock_engine.connect() as connection:
+            connection.execute('SELECT 1')
+
+    def test_something(self):
+        # Exemple de test utilisant le mock
+        self.assertTrue(self.mock_engine.connect.called)

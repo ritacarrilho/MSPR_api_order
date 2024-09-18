@@ -33,10 +33,10 @@ class OrderProduct(OrderProductBase):
         orm_mode = True
         
 class OrderCreate(BaseModel):
-    customerId: int
-    createdAt: datetime
-    updated_at: datetime
-    status: int
+    customer_id: int
+    status: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class OrderProductCreate(BaseModel):
     productId: int
