@@ -30,6 +30,10 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
+      - name: Create shared Docker network
+        run: |
+          docker network ls | grep kawa-shared-network || docker network create kawa-shared-network
+
       - name: Build Docker images
         run: |
           docker-compose build
