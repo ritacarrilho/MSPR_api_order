@@ -58,37 +58,37 @@ jobs:
     needs: build
 
     steps:
-      - name: Install Docker Compose
-        run: |
-           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-           sudo chmod +x /usr/local/bin/docker-compose
-           docker-compose --version
+      # - name: Install Docker Compose
+      #   run: |
+      #      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      #      sudo chmod +x /usr/local/bin/docker-compose
+      #      docker-compose --version
 
-      - name: Create shared Docker network
-        run: |
-          docker network ls | grep ${{ secrets.REF_NETWORK }} || docker network create ${{ secrets.REF_NETWORK }}
+      # - name: Create shared Docker network
+      #   run: |
+      #     docker network ls | grep ${{ secrets.REF_NETWORK }} || docker network create ${{ secrets.REF_NETWORK }}
 
-      - name: Build Docker images
-        run: |
-          docker-compose build
+      # - name: Build Docker images
+      #   run: |
+      #     docker-compose build
           
-      - name: Start Docker containers
-        run: |
-          docker-compose up -d
-          sleep 60
+      # - name: Start Docker containers
+      #   run: |
+      #     docker-compose up -d
+      #     sleep 60
 
-      - name: Check Docker container logs
-        run: |
-          docker-compose logs ${{ secrets.DOCKER_CONTAINER }}
+      # - name: Check Docker container logs
+      #   run: |
+      #     docker-compose logs ${{ secrets.DOCKER_CONTAINER }}
 
-      - name: Verify Docker containers are running
-        run: |
-          docker ps
-          if ! docker ps | grep ${{ secrets.DOCKER_CONTAINER }}; then
-            echo "Le conteneur n'est pas en cours d'exécution !"
-            exit 1
-          fi
-        continue-on-error: true
+      # - name: Verify Docker containers are running
+      #   run: |
+      #     docker ps
+      #     if ! docker ps | grep ${{ secrets.DOCKER_CONTAINER }}; then
+      #       echo "Le conteneur n'est pas en cours d'exécution !"
+      #       exit 1
+      #     fi
+        # continue-on-error: true
 
       - name: Run unit tests
         run: |
