@@ -36,7 +36,9 @@ jobs:
     needs: setup
 
     steps:
- 
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -47,16 +49,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run unit tests with coverage
-        run: |
-          python -m unittest discover -s tests -p "test_api.py"
-        continue-on-error: true
+      # - name: Run unit tests with coverage
+      #   run: |
+      #     python -m unittest discover -s tests -p "test_api.py"
+      #   continue-on-error: true
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v2
-        with:
-          name: junit-results
-          path: results.xml
+      - name: Generate coverage report
+        run: |
+          # Run tests with coverage
+          coverage run -m unittest discover -s tests -p "test_api.py"
+          # Generate coverage report
+          coverage report
+          coverage xml -o coverage.xml
+
+      # - name: Upload test results
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: junit-results
+      #     path: results.xml
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
