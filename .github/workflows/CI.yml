@@ -29,33 +29,11 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
-
-  build:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    needs: setup
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Create shared Docker network
-        run: |
-          docker network ls | grep ${{ secrets.REF_NETWORK }} || docker network create ${{ secrets.REF_NETWORK }}
-
-      - name: Build Docker images
-        run: docker-compose build
-
+          
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    needs: build
+    needs: setup
 
     steps:
       # - name: Install Docker Compose
@@ -98,7 +76,7 @@ jobs:
         continue-on-error: true
 
   publish:
-    name: Publish Docker Image
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: test
 
@@ -134,21 +112,6 @@ jobs:
         run: |
           docker-compose logs ${{ secrets.DOCKER_CONTAINER }}
 
-      - name: Verify Docker containers are running
-        run: |
-          docker ps
-
-          if ! docker ps | grep ${{ secrets.DOCKER_CONTAINER }}; then
-            echo "Le conteneur n'est pas en cours d'exécution !"
-            exit 1
-          fi
-
-          if ! nc -zv localhost {{ secrets.PORT }}; then
-            echo "Le port du conteneur n'est pas accessible !"
-            exit 1
-          fi
-        continue-on-error: true
-
       - name: Log out from Docker Hub (cleanup)
         run: docker logout
         
@@ -173,21 +136,36 @@ jobs:
         with:
           ref: release
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      
+      - name: Pull latest changes from main
+        run: git pull origin main
 
-      - name: Update version in files
+      - name: Update version in files on main
+        if: success()
         run: |
           VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
           echo "Updating version to $VERSION"
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+        continue-on-error: true
 
-      - name: Commit updated package.json
+      - name: Commit updated package.json on main
+        if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           git checkout main || git checkout -b main origin/main
           git add package.json
+          VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          echo "Updating version to $VERSION"
           git commit -m "Update version to $VERSION [skip ci]"
           git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} main
+
+      - name: Checkout release branch with token
+        if: success()
+        uses: actions/checkout@v3
+        with:
+          ref: release
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Merge main into release
         env:
