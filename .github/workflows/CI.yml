@@ -75,6 +75,28 @@ jobs:
           python -m unittest discover -s tests -p "test_api.py"
         continue-on-error: true
 
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: junit-results
+          path: results.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+      - name: Setup Testspace
+        uses: testspace-com/setup-testspace@v1
+        with:
+          domain: ${{ github.repository_owner }}
+
+      - name: Publish results to Testspace
+        run: |
+          testspace ./results.xml coverage.xml
+        if: always()
+
   sonarqube:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
