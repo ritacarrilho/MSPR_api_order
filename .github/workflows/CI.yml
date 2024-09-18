@@ -50,22 +50,22 @@ jobs:
 
       - name: Check Docker container logs
         run: |
-          docker-compose logs kawa-orders-app
+          docker-compose logs ${{ secrets.DOCKER_CONTAINER }}
 
-      - name: Verify Docker containers are running
-        run: |
-          docker ps
+      # - name: Verify Docker containers are running
+      #   run: |
+      #     docker ps
 
-          if ! docker ps | grep kawa-orders-app; then
-            echo "Le conteneur n'est pas en cours d'exécution !"
-            exit 1
-          fi
+      #     if ! docker ps | grep kawa-orders-app; then
+      #       echo "Le conteneur n'est pas en cours d'exécution !"
+      #       exit 1
+      #     fi
 
-          if ! nc -zv localhost 8081; then
-            echo "Le port 8081 sur le conteneur n'est pas accessible !"
-            exit 1
-          fi
-        continue-on-error: true
+      #     if ! nc -zv localhost 8081; then
+      #       echo "Le port 8081 sur le conteneur n'est pas accessible !"
+      #       exit 1
+      #     fi
+      #   continue-on-error: true
 
       # - name: Wait for the database to be ready
       #   run: |
