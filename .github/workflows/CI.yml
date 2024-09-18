@@ -250,7 +250,7 @@ jobs:
         run: |
           STEP_NAME=${{ github.job }}
           curl -X POST -H "Content-Type: application/json" -d '{
-            "content": "<@&ROLE_ID> **Pipeline Failure - API ORDER**\n\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Failed Step:** '"${STEP_NAME}"'"
+            "content": "<@&ROLE_ID> **Pipeline Failure - API ${{secrets.API_NAME}}**\n\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Failed Step:** '"${STEP_NAME}"'"
           }' $DISCORD_WEBHOOK_URL
 
       - name: Send Discord release notes on success
@@ -260,5 +260,5 @@ jobs:
         run: |
           VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
           curl -X POST -H "Content-Type: application/json" -d '{
-            "content": "**Pipeline Successful - API ORDER**\n\n**Version:** '"${VERSION}"'\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Release Branch:** release"
+            "content": "**Pipeline Successful - API ${{secrets.API_NAME}**\n\n**Version:** '"${VERSION}"'\n**Repository:** ${{ github.repository }}\n**Commit SHA:** ${{ github.sha }}\n**Commit Message:** ${{ github.event.head_commit.message }}\n**Release Branch:** release"
           }' $DISCORD_WEBHOOK_URL_RELEASE
