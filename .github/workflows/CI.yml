@@ -132,7 +132,7 @@ jobs:
   publish:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: test
+    needs: sonarqube
 
     steps:
       - name: Checkout code
