@@ -60,7 +60,7 @@ def delete_order_product(id: int, db: Session = Depends(get_db)):
     controllers.delete_order_product(db, id)
     return {"detail": "OrderProduct deleted"}
 
-@app.get("/orders/{order_id}/products-details")
+@app.get("/orders/{order_id}/products-details", tags=["order-products"])
 async def get_order_products_details(order_id: int, db: Session = Depends(get_db)):
     order_products = controllers.get_order_products(db, order_id)
     
