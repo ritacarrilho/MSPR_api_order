@@ -10,3 +10,8 @@ sqlalchemy-utils
 pika
 aio-pika
 mock
+jose
+python-jose
+passlib
+python-multipart
+pyjwt

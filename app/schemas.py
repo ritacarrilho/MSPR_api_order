@@ -33,9 +33,9 @@ class OrderProduct(OrderProductBase):
         orm_mode = True
         
 class OrderCreate(BaseModel):
-    customer_id: int
-    status: str
-    created_at: Optional[datetime] = None
+    customerId: int
+    status: int
+    createdAt: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 class OrderProductCreate(BaseModel):
