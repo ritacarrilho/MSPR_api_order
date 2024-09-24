@@ -1,133 +1,72 @@
 import unittest
-from sqlalchemy import create_engine, MetaData, Table, insert, select, update, delete, inspect
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from fastapi.testclient import TestClient
+from unittest.mock import patch
+from app.main import app
 
-class TestDatabase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.engine = create_engine('mysql+mysqlconnector://root:@localhost:3306/test_db')
-        cls.Session = sessionmaker(bind=cls.engine)
-        cls.session = cls.Session()
-        cls.metadata = MetaData()  # Pas de 'bind' ici
-        cls.metadata.bind = cls.engine
-        cls.inspector = inspect(cls.engine)
-        
-        # Charger les tables nécessaires
-        cls.orders_table = Table('orders', cls.metadata, autoload_with=cls.engine)
-        cls.order_products_table = Table('order_products', cls.metadata, autoload_with=cls.engine)
+class TestMain(unittest.TestCase):
 
+    def setUp(self):
+        self.client = TestClient(app)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.session.close()
+    @patch('app.controllers.get_all_orders')
+    @patch('app.middleware.is_admin')
+    def test_get_orders_success(self, mock_is_admin, mock_get_all_orders):
+        mock_is_admin.return_value = None
+        mock_get_all_orders.return_value = [{"id": 1, "customerId": 123, "status": "pending"}]
 
-    # Test de connexion à la base de données
-    def test_database_connection(self):
-        """Teste la connexion à la base de données."""
-        try:
-            connection = self.engine.connect()
-            self.assertTrue(connection)
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur de connexion à la base de données : {e}")
-        finally:
-            connection.close()
+        response = self.client.get("/orders/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]['id'], 1)
 
-    # Test pour vérifier l'existence de la table 'orders'
-    def test_table_orders_exists(self):
-        """Vérifie que la table 'orders' existe dans test_db."""
-        try:
-            tables = self.inspector.get_table_names()
-            self.assertIn('orders', tables, "La table 'orders' n'existe pas dans la base de données.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'orders' : {e}")
+    @patch('app.controllers.get_all_orders')
+    @patch('app.middleware.is_admin')
+    def test_get_orders_no_orders(self, mock_is_admin, mock_get_all_orders):
+        mock_is_admin.return_value = None
+        mock_get_all_orders.return_value = []
 
-    # Test pour vérifier l'existence de la table 'order_products'
-    def test_table_order_products_exists(self):
-        """Vérifie que la table 'order_products' existe dans test_db."""
-        try:
-            tables = self.inspector.get_table_names()
-            self.assertIn('order_products', tables, "La table 'order_products' n'existe pas dans la base de données.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur SQLAlchemy lors de la vérification de l'existence de la table 'order_products' : {e}")
+        response = self.client.get("/orders/")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), {"detail": "No orders found"})
 
-    # Test pour insérer des données dans la table 'orders'
-    def test_insert_into_orders(self):
-        """Teste l'insertion d'une commande dans la table 'orders'."""
-        try:
-            insert_query = insert(self.orders_table).values(customerId=1, createdAt="2024-09-14 10:00:00")
-            result = self.session.execute(insert_query)
-            self.session.commit()
-            
-            # Vérifier que l'insertion a réussi
-            self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'orders' a échoué.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de l'insertion dans 'orders' : {e}")
+    @patch('app.controllers.get_order_by_id')
+    @patch('app.middleware.is_customer_or_admin')
+    def test_get_customer_orders_success(self, mock_is_customer_or_admin, mock_get_order_by_id):
+        mock_get_order_by_id.return_value = {"id": 1, "customerId": 123, "status": "pending"}
+        mock_is_customer_or_admin.return_value = None
 
-    # Test pour insérer des données dans la table 'order_products'
-    def test_insert_into_order_products(self):
-        """Teste l'insertion d'un produit dans la table 'order_products'."""
-        try:
-            insert_query = insert(self.order_products_table).values(productId=1, quantity=10, id_order=1)
-            result = self.session.execute(insert_query)
-            self.session.commit()
-            
-            # Vérifier que l'insertion a réussi
-            self.assertIsNotNone(result.inserted_primary_key, "L'insertion dans la table 'order_products' a échoué.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de l'insertion dans 'order_products' : {e}")
+        response = self.client.get("/orders/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['id'], 1)
 
-    # Test pour lire des données dans la table 'orders'
-    def test_read_from_orders(self):
-        """Teste la lecture des données insérées dans la table 'orders'."""
-        try:
-            select_query = select([self.orders_table]).where(self.orders_table.c.customerId == 1)
-            result = self.session.execute(select_query).fetchone()
-            
-            # Vérifier que les données sont bien récupérées
-            self.assertIsNotNone(result, "Aucune donnée trouvée dans la table 'orders'.")
-            self.assertEqual(result['customerId'], 1, "Le champ 'customerId' est incorrect.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de la lecture dans 'orders' : {e}")
+    @patch('app.controllers.get_order_by_id')
+    def test_get_customer_orders_not_found(self, mock_get_order_by_id):
+        mock_get_order_by_id.return_value = None
 
-    # Test pour mettre à jour des données dans la table 'orders'
-    def test_update_orders(self):
-        """Teste la mise à jour d'une commande dans la table 'orders'."""
-        try:
-            update_query = update(self.orders_table).where(self.orders_table.c.customerId == 1).values(status=1)
-            result = self.session.execute(update_query)
-            self.session.commit()
+        response = self.client.get("/orders/999")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), {"detail": "Order not found"})
 
-            # Vérifier que la mise à jour a réussi
-            self.assertGreater(result.rowcount, 0, "Aucune ligne n'a été mise à jour dans la table 'orders'.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de la mise à jour dans 'orders' : {e}")
+    @patch('app.controllers.create_order')
+    @patch('app.middleware.is_customer_or_admin')
+    async def test_create_order_success(self, mock_is_customer_or_admin, mock_create_order):
+        mock_create_order.return_value = {"id": 1, "customerId": 123, "status": "pending"}
+        mock_is_customer_or_admin.return_value = None
 
-    # Test pour supprimer des données dans la table 'orders'
-    def test_delete_from_orders(self):
-        """Teste la suppression d'une commande dans la table 'orders'."""
-        try:
-            delete_query = delete(self.orders_table).where(self.orders_table.c.customerId == 1)
-            result = self.session.execute(delete_query)
-            self.session.commit()
+        order_data = {"customerId": 123, "products": []}
+        response = self.client.post("/orders/", json=order_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['id'], 1)
 
-            # Vérifier que la suppression a réussi
-            self.assertGreater(result.rowcount, 0, "Aucune ligne n'a été supprimée dans la table 'orders'.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de la suppression dans 'orders' : {e}")
+    @patch('app.controllers.create_order')
+    def test_create_order_error(self, mock_create_order):
+        mock_create_order.side_effect = Exception("Error creating order")
 
-    # Test pour lire des données dans la table 'order_products'
-    def test_read_from_order_products(self):
-        """Teste la lecture des données insérées dans la table 'order_products'."""
-        try:
-            select_query = select([self.order_products_table]).where(self.order_products_table.c.id_order == 1)
-            result = self.session.execute(select_query).fetchone()
-            
-            # Vérifier que les données sont bien récupérées
-            self.assertIsNotNone(result, "Aucune donnée trouvée dans la table 'order_products'.")
-            self.assertEqual(result['productId'], 1, "Le champ 'productId' est incorrect.")
-        except SQLAlchemyError as e:
-            self.fail(f"Erreur lors de la lecture dans 'order_products' : {e}")
+        order_data = {"customerId": 123, "products": []}
+        response = self.client.post("/orders/", json=order_data)
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json(), {"detail": "An error occurred while creating the order"})
+
 
 if __name__ == '__main__':
     unittest.main()
