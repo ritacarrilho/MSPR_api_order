@@ -17,7 +17,6 @@ def on_request(ch, method, properties, body):
         customer_id = customer_data.get('customer_id')
         logging.info(f"Processing request for customer_id: {customer_id}")
 
-        # Fetch customer orders from database
         response_data = fetch_orders_for_customer(db, customer_id)
 
         if response_data is None:
@@ -25,10 +24,7 @@ def on_request(ch, method, properties, body):
         else:
             response_json = response_data.json()
 
-        # Publish the response via RabbitMQ
         publish_message(ch, properties, response_json)
-
-        # Acknowledge the message
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
     except json.JSONDecodeError as e:

@@ -36,11 +36,9 @@ def handle_order_request(ch, method, properties, body):
     """Handle incoming requests for order products."""
     db = next(get_db()) 
     try:
-        # Parse incoming message
         data = json.loads(body)
         order_id = data.get('order_id')
         
-        # Fetch products for the given order
         order_products = fetch_order_products(db, order_id)
         if not order_products:
             response_data = json.dumps({'error': 'No products found for this order'})
@@ -48,12 +46,11 @@ def handle_order_request(ch, method, properties, body):
             product_ids = [op.productId for op in order_products]
             response_data = json.dumps({'products': product_ids})
 
-        # Send the response back via RabbitMQ, including the correlation_id from the request
         ch.basic_publish(
             exchange='',
-            routing_key=properties.reply_to,  # Send to the reply_to queue
+            routing_key=properties.reply_to, 
             properties=pika.BasicProperties(
-                correlation_id=properties.correlation_id  # Set the correlation ID
+                correlation_id=properties.correlation_id
             ),
             body=response_data
         )

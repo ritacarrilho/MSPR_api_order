@@ -5,7 +5,7 @@ from . import controllers, schemas
 from .database import get_db
 import threading
 from .messaging.listener import start_order_service_listener
-from .messaging.publisher import send_rabbitmq_message
+from .messaging.publisher import send_rabbitmq_message, publish_order_created
 from .middleware import get_current_user, is_admin, is_customer_or_admin
 
 app = FastAPI(
@@ -88,6 +88,15 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     try:
         is_customer_or_admin(current_user, order.customerId)
         new_order = controllers.create_order(db, order)
+
+        order = {
+        "event": "order_created",
+        "order_id": 123,
+        "customer_id": order["customer_id"],
+        "products": order["products"],
+        "order_date": "2024-09-24T10:20:30Z"
+    }
+        await publish_order_created(order)
         return new_order
 
     except HTTPException as http_exc:

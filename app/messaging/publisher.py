@@ -1,18 +1,27 @@
 import pika
+import aio_pika
 import json
 import logging
 import uuid
+import os
 from .config import get_rabbitmq_connection
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BROKER_USER = os.getenv("BROKER_USER")
+BROKER_PASSWORD = os.getenv('BROKER_PASSWORD')
+BROKER_HOST = os.getenv('BROKER_HOST')
+BROKER_PORT = os.getenv('BROKER_PORT')
+BROKER_VIRTUAL_HOST = os.getenv('BROKER_VIRTUAL_HOST')
 
 def publish_message(ch, properties, response_data):
     """Publishes a response back to the producer via RabbitMQ."""
     try:
-        # Convert the response data to JSON
         response_json = json.dumps(response_data)
         logging.info(f"Publishing response: {response_json}")
 
-        # Publish the message to the producer
         ch.basic_publish(
             exchange='',
             routing_key=properties.reply_to,
@@ -28,31 +37,25 @@ def publish_message(ch, properties, response_data):
 def send_rabbitmq_message(queue, message):
     """Send a message to a RabbitMQ queue and wait for a response."""
     try:
-        # Establish RabbitMQ connection
         connection = get_rabbitmq_connection()
         if not connection:
             raise Exception("Unable to connect to RabbitMQ.")
 
         channel = connection.channel()
 
-        # Declare the queue in case it doesn't exist
         channel.queue_declare(queue=queue)
 
-        # Create a temporary callback queue for the response
         callback_queue = channel.queue_declare(queue='', exclusive=True).method.queue
         correlation_id = str(uuid.uuid4())
         response = None
 
-        # Define a callback for handling the response
         def on_response(ch, method, props, body):
             nonlocal response
             if correlation_id == props.correlation_id:
                 response = json.loads(body)
 
-        # Start consuming messages from the callback queue
         channel.basic_consume(queue=callback_queue, on_message_callback=on_response, auto_ack=True)
 
-        # Publish the message to the specified queue
         logging.info(f"Sending message to {queue}: {message}")
         channel.basic_publish(
             exchange='',
@@ -64,16 +67,27 @@ def send_rabbitmq_message(queue, message):
             body=json.dumps(message)
         )
 
-        # Wait for the response
         while response is None:
             connection.process_data_events()
 
-        # Close the connection
         connection.close()
-
         logging.info(f"Received response: {response}")
         return response
 
     except Exception as e:
         logging.error(f"Error sending message to {queue}: {e}")
         return {"error": str(e)}
+    
+
+async def publish_order_created(order):
+    connection = await aio_pika.connect_robust(f"amqp://{BROKER_USER}:{BROKER_PASSWORD}@{BROKER_HOST}/")
+    async with connection:
+        channel = await connection.channel()
+        exchange = channel.default_exchange
+        
+        message = aio_pika.Message(
+            body=json.dumps(order).encode(),
+            delivery_mode=aio_pika.DeliveryMode.PERSISTENT
+        )
+        
+        await exchange.publish(message, routing_key='orders.created')
