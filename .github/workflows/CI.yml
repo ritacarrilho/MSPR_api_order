@@ -107,7 +107,7 @@ jobs:
       #     sed -i 's|/__w/MSPR_api_order/MSPR_api_order/app|app|g' coverage.xml
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@V1
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
