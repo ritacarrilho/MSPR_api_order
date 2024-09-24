@@ -112,6 +112,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -X 
             -Dsonar.projectKey=${{ secrets.SONAR_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.sources=app
