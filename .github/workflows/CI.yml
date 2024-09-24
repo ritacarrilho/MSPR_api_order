@@ -102,9 +102,9 @@ jobs:
       - name: Print coverage report
         run: cat coverage.xml
 
-      - name: Adjust coverage paths
-        run: |
-          sed -i 's|/__w/MSPR_api_order/MSPR_api_order/app|app|g' coverage.xml
+      # - name: Adjust coverage paths
+      #   run: |
+      #     sed -i 's|/__w/MSPR_api_order/MSPR_api_order/app|app|g' coverage.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -112,6 +112,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -X 
             -Dsonar.projectKey=${{ secrets.SONAR_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.sources=app
